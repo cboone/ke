@@ -1,0 +1,175 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".editorconfig"
+      - ".claude/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".editorconfig"
+      - ".claude/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Run tests
+        run: cargo nextest run
+
+  lint:
+    name: Lint
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
+
+  format:
+    name: Format
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt -- --check
+
+  build:
+    name: Build
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build
+
+  deny:
+    name: Deny
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+
+      - name: Run cargo deny
+        run: cargo deny check
+
+  audit:
+    name: Audit
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@cargo-audit
+
+      - name: Run cargo audit
+        run: cargo audit
+
+  typos:
+    name: Typos
+    runs-on: macos-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check for typos
+        uses: crate-ci/typos@v1
+
+  test-scrut:
+    name: Test CLI (Scrut)
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install scrut
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "${HOME}/.local/bin"
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          gh release download v0.4.3 --repo facebookincubator/scrut --pattern 'scrut-v0.4.3-macos-aarch64.tar.gz' --dir /tmp
+          tar -xzf /tmp/scrut-v0.4.3-macos-aarch64.tar.gz -C /tmp
+          cp /tmp/scrut-macos-aarch64/scrut "${HOME}/.local/bin/"
+
+      - name: Run scrut CLI tests
+        run: make test-scrut
