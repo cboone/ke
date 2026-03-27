@@ -56,7 +56,7 @@ jobs:
           merge-multiple: true
 
       - name: Generate checksums
-        run: sha256sum *.tar.gz > checksums.txt
+        run: sha256sum ./*.tar.gz > checksums.txt
 
       - name: Create release
         uses: softprops/action-gh-release@v2

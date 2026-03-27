@@ -13,9 +13,12 @@
     "MD014": false,
 
     // Allow bare URLs without angle brackets
-    "MD034": false
+    "MD034": false,
+
+    // Allow files without a top-level heading (e.g., PR templates)
+    "MD041": false,
   },
 
   // Files to ignore
-  "ignores": ["node_modules/", "vendor/", "CHANGELOG.md"]
+  "ignores": ["node_modules/", "vendor/", "CHANGELOG.md"],
 }

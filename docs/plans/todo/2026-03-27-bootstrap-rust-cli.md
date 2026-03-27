@@ -10,29 +10,29 @@ The repository has only minimal scaffolding (LICENSE, README, .gitignore) from i
 
 ## Tool Status
 
-| #    | Tool                      | Type    | Status         | What it does                                          |
-| ---- | ------------------------- | ------- | -------------- | ----------------------------------------------------- |
-| 0    | Rust scaffolding          | Manual  | Will run       | `cargo init`, Cargo.toml metadata, src/main.rs        |
-| 0b   | Rust toolchain config     | Manual  | Will run       | `rust-toolchain.toml`, `.cargo/config.toml`           |
-| 1    | `scaffold-new-repo`       | Command | Scoped down    | CHANGELOG, .gitignore merge, agent config             |
-| 2    | `setup-ci`                | Command | Will run       | `.github/workflows/ci.yml`, Makefile                  |
-| 2b   | Rust CI extras            | Manual  | Will run       | `cargo-deny`, `cargo-audit`, `cargo-nextest`, `typos` CI jobs |
-| 3    | `setup-linters`           | Skill   | Will run       | EditorConfig, Prettier, markdownlint, rustfmt         |
-| 4    | `setup-secret-scanning`   | Command | Will run       | Gitleaks + TruffleHog workflows                       |
-| 5    | `add-community-files`     | Skill   | Will run       | CONTRIBUTING, CoC, SECURITY, PR template              |
-| 6    | `setup-installers`        | Command | Will run       | Homebrew formula, install.sh, release workflow         |
-| 7    | `add-scrut-cli-tests`     | Command | Will run       | Scrut CLI integration tests + CI job                  |
-| 8    | Dependency automation     | Manual  | Will run       | `dependabot.yml` for Cargo dependency updates         |
-| 9    | Changelog automation      | Manual  | Will run       | `git-cliff` config (`cliff.toml`)                     |
-| --   | `scaffold-go-cli`         | --      | Not applicable | Go-specific                                           |
-| --   | `scaffold-go-library`     | --      | Not applicable | Go-specific                                           |
-| --   | `add-goreleaser-homebrew` | --      | Not applicable | Go-specific                                           |
+| #   | Tool                      | Type    | Status         | What it does                                                  |
+| --- | ------------------------- | ------- | -------------- | ------------------------------------------------------------- |
+| 0   | Rust scaffolding          | Manual  | Will run       | `cargo init`, Cargo.toml metadata, src/main.rs                |
+| 0b  | Rust toolchain config     | Manual  | Will run       | `rust-toolchain.toml`, `.cargo/config.toml`                   |
+| 1   | `scaffold-new-repo`       | Command | Scoped down    | CHANGELOG, .gitignore merge, agent config                     |
+| 2   | `setup-ci`                | Command | Will run       | `.github/workflows/ci.yml`, Makefile                          |
+| 2b  | Rust CI extras            | Manual  | Will run       | `cargo-deny`, `cargo-audit`, `cargo-nextest`, `typos` CI jobs |
+| 3   | `setup-linters`           | Skill   | Will run       | EditorConfig, Prettier, markdownlint, rustfmt                 |
+| 4   | `setup-secret-scanning`   | Command | Will run       | Gitleaks + TruffleHog workflows                               |
+| 5   | `add-community-files`     | Skill   | Will run       | CONTRIBUTING, CoC, SECURITY, PR template                      |
+| 6   | `setup-installers`        | Command | Will run       | Homebrew formula, install.sh, release workflow                |
+| 7   | `add-scrut-cli-tests`     | Command | Will run       | Scrut CLI integration tests + CI job                          |
+| 8   | Dependency automation     | Manual  | Will run       | `dependabot.yml` for Cargo dependency updates                 |
+| 9   | Changelog automation      | Manual  | Will run       | `git-cliff` config (`cliff.toml`)                             |
+| --  | `scaffold-go-cli`         | --      | Not applicable | Go-specific                                                   |
+| --  | `scaffold-go-library`     | --      | Not applicable | Go-specific                                                   |
+| --  | `add-goreleaser-homebrew` | --      | Not applicable | Go-specific                                                   |
 
 ## Execution Order
 
 Steps 3 and 4 can run in parallel after step 2b. All others are sequential.
 
-```
+```text
 Step 0  (cargo init + metadata)
   v
 Step 0b (rust-toolchain.toml, .cargo/config.toml)
@@ -81,12 +81,15 @@ No Rust scaffolder plugin exists. Handle manually:
 Create toolchain and cargo configuration files:
 
 1. **`rust-toolchain.toml`**: Pin the toolchain channel and set MSRV.
+
    ```toml
    [toolchain]
    channel = "stable"
    components = ["clippy", "rustfmt"]
    ```
+
 2. **`.cargo/config.toml`**: Set default build target to the host macOS triple and any useful defaults.
+
    ```toml
    [build]
    # Default target for macOS-only project
@@ -124,6 +127,7 @@ Read command file and follow workflow. Rust CI template includes:
 Add Rust-specific CI jobs and configs that the `setup-ci` plugin does not cover:
 
 1. **`deny.toml`** (cargo-deny config): License auditing, vulnerability scanning, duplicate dependency detection.
+
    ```toml
    [advisories]
    vulnerability = "deny"
@@ -141,17 +145,20 @@ Add Rust-specific CI jobs and configs that the `setup-ci` plugin does not cover:
    unknown-registry = "deny"
    unknown-git = "deny"
    ```
+
 2. **CI workflow additions** (append to `.github/workflows/ci.yml`):
    - `deny` job: `cargo install cargo-deny && cargo deny check`
    - `audit` job: `cargo install cargo-audit && cargo audit`
    - `typos` job: uses `crate-ci/typos@v1` action
    - Update existing `test` job to use `cargo-nextest`: `cargo install cargo-nextest && cargo nextest run`
 3. **`typos.toml`** (typos config): Minimal config with project-specific word allowlist.
+
    ```toml
    [default.extend-words]
    # Add project-specific terms here
    ke = "ke"
    ```
+
 4. **Makefile additions**:
    - `deny` target: `cargo deny check`
    - `audit` target: `cargo audit`
@@ -236,6 +243,7 @@ This covers both Cargo dependencies and GitHub Actions version updates.
 Set up `git-cliff` for automated changelog generation from conventional commits:
 
 1. **`cliff.toml`**: Configuration file for git-cliff.
+
    ```toml
    [changelog]
    header = "# Changelog\n\nAll notable changes to this project will be documented in this file.\n"
@@ -266,6 +274,7 @@ Set up `git-cliff` for automated changelog generation from conventional commits:
      { message = "^deps", group = "Dependencies" },
    ]
    ```
+
 2. **Makefile addition**: `changelog` target running `git cliff -o CHANGELOG.md`.
 3. **Release workflow integration**: Add a step to the release workflow (from step 6) that runs `git cliff` to generate release notes.
 

@@ -23,14 +23,14 @@ OS="darwin"
 VERSION=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --version)
-      VERSION="$2"
-      shift 2
-      ;;
-    *)
-      printf 'Unknown argument: %s\n' "$1" >&2
-      exit 1
-      ;;
+  --version)
+    VERSION="$2"
+    shift 2
+    ;;
+  *)
+    printf 'Unknown argument: %s\n' "$1" >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -46,12 +46,12 @@ fi
 # Detect architecture.
 ARCH="$(uname -m)"
 case "${ARCH}" in
-  x86_64)  ARCH="amd64" ;;
-  arm64)   ARCH="arm64" ;;
-  *)
-    printf 'Unsupported architecture: %s\n' "${ARCH}" >&2
-    exit 1
-    ;;
+x86_64) ARCH="amd64" ;;
+arm64) ARCH="arm64" ;;
+*)
+  printf 'Unsupported architecture: %s\n' "${ARCH}" >&2
+  exit 1
+  ;;
 esac
 
 # Download.
@@ -101,10 +101,10 @@ printf 'Installed %s to %s/%s\n' "${BINARY}" "${INSTALL_DIR}" "${BINARY}"
 
 # Check if INSTALL_DIR is in PATH.
 case ":${PATH}:" in
-  *":${INSTALL_DIR}:"*) ;;
-  *)
-    printf '\nNote: %s is not in your PATH.\n' "${INSTALL_DIR}"
-    # shellcheck disable=SC2016
-    printf 'Add it with: export PATH="%s:${PATH}"\n' "${INSTALL_DIR}"
-    ;;
+*":${INSTALL_DIR}:"*) ;;
+*)
+  printf '\nNote: %s is not in your PATH.\n' "${INSTALL_DIR}"
+  # shellcheck disable=SC2016
+  printf 'Add it with: export PATH="%s:${PATH}"\n' "${INSTALL_DIR}"
+  ;;
 esac
