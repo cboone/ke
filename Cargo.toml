@@ -1,0 +1,12 @@
+[package]
+name = "ke"
+version = "0.1.0"
+edition = "2024"
+description = "A developer-focused CLI for ergonomic macOS Keychain access"
+license = "MIT"
+repository = "https://github.com/cboone/ke"
+authors = ["Christopher Boone"]
+categories = ["command-line-utilities"]
+keywords = ["keychain", "secrets", "macos", "cli"]
+
+[dependencies]
