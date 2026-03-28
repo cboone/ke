@@ -8,3 +8,10 @@ Tests for ke version commands.
 $ "${KE_BIN}" --version
 ke * (glob)
 ```
+
+## Short version flag
+
+```scrut
+$ "${KE_BIN}" -V
+ke * (glob)
+```
