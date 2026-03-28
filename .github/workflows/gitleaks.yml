@@ -16,6 +16,6 @@ permissions:
 
 jobs:
   scan:
-    uses: cboone/gh-actions/.github/workflows/secret-scan.yml@v1
+    uses: cboone/gh-actions/.github/workflows/secret-scan.yml@v2
     with:
       tool: gitleaks
