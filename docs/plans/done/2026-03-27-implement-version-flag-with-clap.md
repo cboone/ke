@@ -34,6 +34,7 @@ fn main() {
 ```
 
 Key details:
+
 - `#[command(version)]` pulls the version from `CARGO_PKG_VERSION` automatically
 - The doc comment on `Cli` becomes the `about` text in `--help` output
 - clap provides `--version`/`-V` and `--help`/`-h` by default
