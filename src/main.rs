@@ -1,8 +1,11 @@
+use clap::Parser;
+
+/// A developer-focused CLI for ergonomic macOS Keychain access
+#[derive(Parser)]
+#[command(version)]
+struct Cli {}
+
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.iter().any(|a| a == "--version" || a == "-V") {
-        println!("ke {}", env!("CARGO_PKG_VERSION"));
-        return;
-    }
+    let _cli = Cli::parse();
     println!("Hello, world!");
 }

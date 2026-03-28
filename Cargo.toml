@@ -10,3 +10,4 @@ categories = ["command-line-utilities"]
 keywords = ["keychain", "secrets", "macos", "cli"]
 
 [dependencies]
+clap = { version = "4", features = ["derive"] }
