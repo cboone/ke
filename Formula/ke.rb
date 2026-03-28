@@ -1,3 +1,6 @@
+# Template for Homebrew tap automation.
+# The release workflow generates the published formula from this structure.
+# Do not manually update version, URLs, or SHA256 values here.
 class Ke < Formula
   desc "A developer-focused CLI for ergonomic macOS Keychain access"
   homepage "https://github.com/cboone/ke"
@@ -21,6 +24,6 @@ class Ke < Formula
   end
 
   test do
-    system bin/"ke", "--version"
+    assert_match version.to_s, shell_output("#{bin}/ke --version")
   end
 end
