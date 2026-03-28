@@ -71,6 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v6
+
       - name: Extract version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
@@ -87,8 +89,8 @@ jobs:
         id: checksums
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          AMD64_SHA=$(grep "ke-${VERSION}-darwin-amd64.tar.gz" checksums.txt | awk '{print $1}')
-          ARM64_SHA=$(grep "ke-${VERSION}-darwin-arm64.tar.gz" checksums.txt | awk '{print $1}')
+          AMD64_SHA=$(grep -F "ke-${VERSION}-darwin-amd64.tar.gz" checksums.txt | awk '{print $1}')
+          ARM64_SHA=$(grep -F "ke-${VERSION}-darwin-arm64.tar.gz" checksums.txt | awk '{print $1}')
           if [ -z "$AMD64_SHA" ] || [ -z "$ARM64_SHA" ]; then
             echo "::error::Failed to extract SHA256 values from checksums.txt"
             cat checksums.txt
@@ -101,6 +103,11 @@ jobs:
         env:
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
+          if [ -z "$HOMEBREW_TAP_TOKEN" ]; then
+            echo "::error::HOMEBREW_TAP_TOKEN secret is not set"
+            exit 1
+          fi
+
           VERSION="${{ steps.version.outputs.version }}"
           AMD64_SHA="${{ steps.checksums.outputs.amd64 }}"
           ARM64_SHA="${{ steps.checksums.outputs.arm64 }}"
@@ -108,34 +115,11 @@ jobs:
           git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/cboone/homebrew-tap.git" tap-repo
           mkdir -p tap-repo/Formula
 
-          cat > tap-repo/Formula/ke.rb <<FORMULA_EOF
-          class Ke < Formula
-            desc "A developer-focused CLI for ergonomic macOS Keychain access"
-            homepage "https://github.com/cboone/ke"
-            version "${VERSION}"
-            license "MIT"
-
-            depends_on :macos
-
-            on_intel do
-              url "https://github.com/cboone/ke/releases/download/v${VERSION}/ke-${VERSION}-darwin-amd64.tar.gz"
-              sha256 "${AMD64_SHA}"
-            end
-
-            on_arm do
-              url "https://github.com/cboone/ke/releases/download/v${VERSION}/ke-${VERSION}-darwin-arm64.tar.gz"
-              sha256 "${ARM64_SHA}"
-            end
-
-            def install
-              bin.install "ke"
-            end
-
-            test do
-              assert_match version.to_s, shell_output("#{bin}/ke --version")
-            end
-          end
-          FORMULA_EOF
+          sed \
+            -e "s/VERSION_PLACEHOLDER/${VERSION}/g" \
+            -e "s/SHA256_FOR_DARWIN_AMD64/${AMD64_SHA}/g" \
+            -e "s/SHA256_FOR_DARWIN_ARM64/${ARM64_SHA}/g" \
+            Formula/ke.rb > tap-repo/Formula/ke.rb
 
           cd tap-repo
           git config user.name "github-actions[bot]"
