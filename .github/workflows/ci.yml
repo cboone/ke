@@ -48,7 +48,7 @@ jobs:
         uses: taiki-e/install-action@nextest
 
       - name: Run tests
-        run: cargo nextest run
+        run: cargo nextest run --no-tests=warn
 
   lint:
     name: Lint

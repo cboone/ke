@@ -1,6 +1,6 @@
 [advisories]
-vulnerability = "deny"
-unmaintained = "warn"
+vulnerability = "all"
+unmaintained = "workspace"
 
 [licenses]
 unlicensed = "deny"
