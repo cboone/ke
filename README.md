@@ -10,18 +10,6 @@ A developer-focused CLI for ergonomic macOS Keychain access.
 brew install cboone/tap/ke
 ```
 
-### Shell script
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cboone/ke/main/install.sh | bash
-```
-
-To install a specific version:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cboone/ke/main/install.sh | bash -s -- --version v1.0.0
-```
-
 ### cargo install
 
 ```bash
