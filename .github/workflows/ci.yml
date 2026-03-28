@@ -167,9 +167,14 @@ jobs:
         run: |
           mkdir -p "${HOME}/.local/bin"
           echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
-          gh release download v0.4.3 --repo facebookincubator/scrut --pattern 'scrut-v0.4.3-macos-aarch64.tar.gz' --dir /tmp
-          tar -xzf /tmp/scrut-v0.4.3-macos-aarch64.tar.gz -C /tmp
-          cp /tmp/scrut-macos-aarch64/scrut "${HOME}/.local/bin/"
+          case "${{ runner.arch }}" in
+            ARM64) SCRUT_ARCH="aarch64" ;;
+            X64) SCRUT_ARCH="x86_64" ;;
+            *) echo "Unsupported runner architecture: ${{ runner.arch }}" >&2; exit 1 ;;
+          esac
+          gh release download v0.4.3 --repo facebookincubator/scrut --pattern "scrut-v0.4.3-macos-${SCRUT_ARCH}.tar.gz" --dir /tmp
+          tar -xzf "/tmp/scrut-v0.4.3-macos-${SCRUT_ARCH}.tar.gz" -C /tmp
+          cp "/tmp/scrut-macos-${SCRUT_ARCH}/scrut" "${HOME}/.local/bin/"
 
       - name: Run scrut CLI tests
         run: make test-scrut
